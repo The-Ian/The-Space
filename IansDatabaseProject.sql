@@ -11,6 +11,24 @@ GO
 
 Use TheLibrary
 
+If (Select Count(*) 
+	From master.dbo.syslogins Where name = 'PeterParker') > 0
+BEGIN
+	DROP Login PeterParker;
+END
+
+Create Login PeterParker
+	With Password = 'RealSpiderman1'
+Go
+
+Create User PeterParker For Login PeterParker
+Go
+
+Alter Role db_datareader Add Member [PeterParker]
+Go
+
+Alter Role db_datawriter Add Member [PeterParker]
+Go
 
 Go
 Create Table Publishers
@@ -58,11 +76,11 @@ Create Table Authors
 )
 Go
 Create Table Books
-(	ISBN int Not Null Identity(1,1),
-	Invoice# int Not Null,
+(	Invoice# int Not Null Identity(1,1),
 	TitleID int Not Null,
-	Available bit,
-	CONSTRAINT pk_Books PRIMARY KEY (ISBN),
+	[Availability] bit,
+	Price Money,
+	CONSTRAINT pk_Books PRIMARY KEY (Invoice#),
 	CONSTRAINT fk_Books_TitleAuthor FOREIGN KEY (TitleID) REFERENCES Titles(TitleID)
 )
 Go
@@ -140,9 +158,11 @@ Create Table Fees
 	DamageFees Money,
 	MemberID int Not Null,
 	EmpID int Not Null,
+	TitleID int Not Null,
 	CONSTRAINT pk_Fees PRIMARY KEY (FeeID),
 	CONSTRAINT fk_Fees_Employees FOREIGN KEY (EmpID) REFERENCES Employees(EmpID),
-	CONSTRAINT fk_Fees_Members FOREIGN KEY (MemberID) REFERENCES Members(MemberID)
+	CONSTRAINT fk_Fees_Members FOREIGN KEY (MemberID) REFERENCES Members(MemberID),
+	CONSTRAINT fk_Fees_TitleID FOREIGN KEY (TitleID) REFERENCES Titles(TitleID)
 )
 Go
 Create Table Magazines
@@ -239,7 +259,7 @@ Insert Into Titles
 Values
 ('Captain America', 'The First Avenger', 'Phasellus in felis. Donec semper sapien a libero. 
 Nam dui. Proin leo odio, porttitor id, consequat in, consequat ut, nulla. Sed accumsan felis. Ut at dolor quis odio consequat varius.', 
-3, '09-10-1988', 'Shonen/Fantasy')
+3, '09-10-1988', 'Shonen/Fantasy'),
 
 
 ('Batman', 'The Dark Knight Returns', 'Maecenas tristique, est et tempus semper, 
@@ -508,45 +528,112 @@ Values
   Print 'Members Inserted'
 
   Insert Into Fees
- (Check_Out, Check_In, DueDate, OverdueFees, Condition, DamageFees, MemberID, EmpID)
+ (Check_Out, Check_In, DueDate, OverdueFees, Condition, DamageFees, MemberID, EmpID, TitleID)
 Values
-  ('05-05-17', '05-12-17', '05-15-17', 0, 1, 0, 1, 2)
+  ('05-05-17', '05-12-17', '05-15-17', 0, 1, 0, 1, 2, 1)
 
 Insert Into Fees
- (Check_Out, Check_In, DueDate, OverdueFees, Condition, DamageFees, MemberID, EmpID)
+ (Check_Out, Check_In, DueDate, OverdueFees, Condition, DamageFees, MemberID, EmpID, TitleID)
 Values
-  ('07-20-17', '08-01-17', '07-30-17', 0.50, 2, 0, 2, 2)
+  ('07-20-17', '08-01-17', '07-30-17', 0.50, 2, 0, 2, 2, 7)
 
 Insert Into Fees
- (Check_Out, Check_In, DueDate, OverdueFees, Condition, DamageFees, MemberID, EmpID)
+ (Check_Out, Check_In, DueDate, OverdueFees, Condition, DamageFees, MemberID, EmpID, TitleID)
 Values
-  ('09-12-17', '09-16-17', '09-22-17', 0, 1, 0, 3, 4)
+  ('09-12-17', '09-16-17', '09-22-17', 0, 1, 0, 3, 4, 4)
 
 Insert Into Fees
- (Check_Out, Check_In, DueDate, OverdueFees, Condition, DamageFees, MemberID, EmpID)
+ (Check_Out, Check_In, DueDate, OverdueFees, Condition, DamageFees, MemberID, EmpID, TitleID)
 Values
-  ('04-01-17', '04-10-17', '04-11-17', 0, 1, 0, 4, 3)
+  ('04-01-17', '04-10-17', '04-11-17', 0, 1, 0, 4, 3, 6)
 
 Insert Into Fees
- (Check_Out, Check_In, DueDate, OverdueFees, Condition, DamageFees, MemberID, EmpID)
+ (Check_Out, Check_In, DueDate, OverdueFees, Condition, DamageFees, MemberID, EmpID, TitleID)
 Values
-  ('06-10-17', '06-30-17', '06-20-17', 2.50, 3, 30.00, 5, 2)
+  ('06-10-17', '06-30-17', '06-20-17', 2.50, 3, 30.00, 5, 2, 7)
 
 Print 'Fees Inserted'
 
 Insert Into Books 
-(Invoice#, TitleID, Available)
+(TitleID, [Availability], Price)
 Values
-( 1, 1, 1)
+(1, 1, 20)
 
 Insert Into Books 
-(Invoice#, TitleID, Available)
+(TitleID, [Availability], Price)
 Values
-( 2, 2, 0)
+(2, 1, 7)
 
 Insert Into Books 
-(Invoice#, TitleID, Available)
+(TitleID, [Availability], Price)
 Values
-( 3, 3, 1)
+(2, 0, 7)
+
+Insert Into Books 
+(TitleID, [Availability], Price)
+Values
+(2, 0, 7)
+
+Insert Into Books 
+(TitleID, [Availability], Price)
+Values
+(3, 1, 10)
+
+Insert Into Books 
+(TitleID, [Availability], Price)
+Values
+(4, 1, 8)
+
+Insert Into Books 
+(TitleID, [Availability], Price)
+Values
+(4, 0, 8)
+
+Insert Into Books 
+(TitleID, [Availability], Price)
+Values
+(5, 0, 10)
+
+Insert Into Books 
+(TitleID, [Availability], Price)
+Values
+(6, 1, 12)
+
+Insert Into Books 
+(TitleID, [Availability], Price)
+Values
+(6, 1, 12)
+
+Insert Into Books 
+(TitleID, [Availability], Price)
+Values
+(7, 1, 8)
+
+Insert Into Books 
+(TitleID, [Availability], Price)
+Values
+(8, 1, 10)
+
+Insert Into Books 
+(TitleID, [Availability], Price)
+Values
+(9, 1, 15)
+
+Insert Into Books 
+(TitleID, [Availability], Price)
+Values
+(9, 0, 15)
+
+Insert Into Books 
+(TitleID, [Availability], Price)
+Values
+(9, 0, 15)
+
+Insert Into Books 
+(TitleID, [Availability], Price)
+Values
+(10, 1, 12)
+
+
 
 Print 'Books Inserted'
