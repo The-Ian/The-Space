@@ -1,15 +1,15 @@
 USE master;
 if (select count(*) 
-    from sys.databases where name = 'Veteninary') > 0
+    from sys.databases where name = 'Veterinary') > 0
 BEGIN
-	DROP DATABASE Veteninary;
+	DROP DATABASE Veterinary;
 END
 
-Create Database Veteninary;
+Create Database Veterinary;
 GO
-Print 'Veteninary Database Created'
+Print 'Veterinary Database Created'
 
-Use Veteninary
+Use Veterinary
 
 If (Select Count(*) 
 	From master.sys.syslogins Where name = 'VetManager') > 0
@@ -20,6 +20,7 @@ END
 Create Login VetManager
 	With Password = '222'
 Go
+
 
 Print 'VetManager Login Added'
 Go
@@ -34,10 +35,12 @@ Create Login VetClerk
 	With Password = '111'
 Go
 
+
 Print 'VetClerk Login Added'
+
+
 Go
 
-exec sp_changedbowner 'sa'
 
 Create Table Clients
 (
@@ -56,12 +59,12 @@ AddressID Int Not Null Identity(1,1),
 ClientID Int Not Null,
 AddressType Int Not Null,
 AddressLine1 Varchar(50) Not Null,
-AddressLine2 Varchar(50) Not Null,
+AddressLine2 Varchar(50),
 City Varchar(35) Not Null,
 StateProvince Varchar(25) Not Null,
 PostalCode Varchar(15) Not Null,
 Phone Varchar(15) Not Null,
-AltPhone Varchar(15) Not Null,
+AltPhone Varchar(15),
 Email Varchar(35) Not Null,
 
 
@@ -99,7 +102,7 @@ CONSTRAINT fk_Clients  Foreign Key (ClientID) References Clients(ClientID),
 CONSTRAINT fk_AnimalType  Foreign Key (AnimalType) References AnimalTypeReference(AnimalTypeID)
 )
 
-Create Table Employees
+Create Table VetEmployees
 (
 EmployeeID Int Not Null Identity(1,1),
 LastName Varchar(25) Not Null,
@@ -120,11 +123,11 @@ City Varchar(35) Not Null,
 StateProvince Varchar(25) Not Null,
 PostalCode Varchar(15) Not Null,
 Phone Varchar(15) Not Null,
-AltPhone Varchar(15) Not Null,
+AltPhone Varchar(15),
 EmployeeID Int Not Null,
 
 CONSTRAINT pk_EmployeeContact Primary Key (AddressID),
-CONSTRAINT fk_Employee  Foreign Key (EmployeeID) References Employees(EmployeeID)
+CONSTRAINT fk_Employee  Foreign Key (EmployeeID) References VetEmployees(EmployeeID)
 )
 
 Create Table Visits
@@ -141,7 +144,7 @@ EmployeeID Int Not Null,
 
 CONSTRAINT pk_Visit Primary Key (VisitID),
 CONSTRAINT fk_Patient Foreign Key (PatientID) References Patients(PatientID),
-CONSTRAINT fk_Employees Foreign Key (EmployeeID) References Employees(EmployeeID),
+CONSTRAINT fk_Employees Foreign Key (EmployeeID) References VetEmployees(EmployeeID),
 CONSTRAINT chk_VisitEndTime Check(EndTime > StartTime)
 )
 
@@ -215,12 +218,201 @@ Values	(1, 'Rock', 1, 'Black/Brown', 'M', 2010, 15, 'It is a small doggie.', 1),
 		(1, 'Wrecker', 11, 'Gray', 'M', 2014, 35, 'A grand old American Bulldog.', 1),
 		(2, 'Ronin', 12, 'Black', 'M,', 2018, 17, 'At least its not furless.', 0),
 		(5, 'Mandark', 13, 'Black', 'M', 2017, 2, 'Another tiny lab mouse.', 1)
-
 		
+
+Insert Into ClientContacts 
+		(ClientID, AddressType, AddressLine1, AddressLine2, City, StateProvince, PostalCode, Phone, Email) 
+
+Values	(1, 2, '4897 Veith Crossing', '32 Russell Way', 'Topeka', 'Kansas', '66629', '785-624-6609', 'jizkovici0@mozilla.org'),
+		(2, 2, '0 Boyd Parkway', '9 Arrowood Court', 'Laurel', 'Maryland', '20709', '410-171-1089', 'ltingle1@wordpress.org'),
+		(3, 1, '432 Grayhawk Hill', '36904 Dexter Lane', 'Hyattsville', 'Maryland', '20784', '301-709-6071', 'lofearguise2@phpbb.com'),
+		(4, 1, '2 Dovetail Junction', '5 Paget Avenue', 'Colorado Springs', 'Colorado', '80915', '719-799-7324', 'tlitt3@wisc.edu'),
+		(5, 2, '58754 Jana Avenue', '80 Golf Point', 'Warren', 'Ohio', '44485', '330-434-8991', 'inattriss4@myspace.com')
+
+
+Insert Into VetEmployees 
+		(LastName, FirstName, HireDate, Title)	
+
+Values	
+		('Hulkes', 'Silvana', '04/05/2017', 'Receptionist'),
+		('Row', 'Chrisse', '06/26/2017', 'Vet Assistant'),
+		('Jertz', 'Joycelin', '10/26/2017', 'Veterinarian'), 
+		('Doreward', 'Arte', '12/10/2017', 'Veterinarian'),
+		('Vogl', 'Danika', '03/30/2017', 'Janitor'),
+		('Gossan', 'Lorrie', '03/06/2017', 'Janitor'),
+		('Vanyutin', 'Freedman', '03/03/2017', 'Janitor')
+
+
+
+Insert Into EmployeeContactInfo 
+		(AddressLine1, AddressLine2, City, StateProvince, PostalCode, Phone, EmployeeID) 
+
+Values	('74126 Hoard Terrace', '19516 Shopko Junction', 'Wichita', 'Kansas', '67230', '316-218-8350', 1),
+		('98 Bellgrove Hill', '21612 Red Cloud Drive', 'Young America', 'Minnesota', '55564', '952-477-0962', 2),
+		('00593 Hallows Crossing', '34 Arizona Road', 'Macon', 'Georgia', '31296', '478-898-6849', 3),
+		('745 Anzinger Circle', '2936 Elgar Park', 'Birmingham', 'Alabama', '35295', '205-288-7963', 4),
+		('827 Sunbrook Avenue', '82 Lillian Crossing', 'Indianapolis', 'Indiana', '46278', '317-833-9250', 5),
+		('3766 Farmco Pass', '2 Northview Hill', 'Clearwater', 'Florida', '34615', '727-916-9217', 6),
+		('2807 Ludington Circle', '86890 Marquette Parkway', 'Atlanta', 'Georgia', '30368', '404-645-6294', 7)
+
+
+Insert Into Visits
+		(StartTime, EndTime, Appointment, DiagnosisCode, ProcedureCode, VisitNotes, PatientID, EmployeeID)
+
+Values
+		('2017-12-04 20:54:24', '2017-12-04 23:00:10', 1, 385, 09510, 'Morbi vel lectus in quam fringilla rhoncus.', 1, 1),
+		('2017-09-19 16:17:17', '2017-09-19 19:59:32', 0, 944, 95845, 'In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem. Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy.', 2, 2),
+		('2017-11-15 10:22:27', '2017-11-15 11:05:41', 1, 9, 44709, 'Nulla tempus. Vivamus in felis eu sapien cursus vestibulum. Proin eu mi. Nulla ac enim.', 3, 3),
+		('2017-07-05 15:05:06', '2017-07-05 20:00:55', 1, 41451, 420, 'Vestibulum quam sapien, varius ut, blandit non, interdum in, ante. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis faucibus accumsan odio. Curabitur convallis.', 4, 4),
+		('2017-04-02 06:30:27', '2017-04-02 08:30:00', 0, 355, 30275, 'Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis.', 5, 5)
+
+
+Insert Into Billing
+		(BillDate, ClientID, VisitID, Amount)
+
+Values
+		('2017-12-04', 1, 1, 150),
+		('2017-09-19', 2, 2, 120),
+		('2017-11-15', 3, 3, 50),
+		('2017-07-05', 4, 4, 300),
+		('2017-04-02', 5, 5, 100)
+
+Insert Into Payment
+		(PaymentDate, BillID, Amount)
+
+Values
+		('2017-12-05', 1, 150),
+		('2017-09-20', 2, 120),
+		('2017-11-16', 3, 50),
+		('2017-07-06', 4, 300),
+		('2017-04-03', 5, 100)
+
+
+-- Stored Procedures
+Go
+Create Proc uspSpeciesReturn (@Value as Varchar(Max))
+As
+	
+	Select	FirstName, LastName, Name AddressType, 
+			AddressLine1, AddressLine2, City, 
+			StateProvince, PostalCode, Phone, Email
+	From Clients C
+	Inner Join ClientContacts CC
+	On C.ClientID = CC.ClientID
+	Inner Join Patients P
+	On P.ClientID = C.ClientID
+	Inner Join AnimalTypeReference ATR
+	On ATR.AnimalTypeID = P.AnimalType
+	Where Species Like '%' + @Value + '%'
+
+	--Exec uspSpeciesReturn Dog
+	
+Go
+Create Proc uspBreedReturn (@Value as Varchar(Max))
+As
+
+	Select	FirstName, LastName, Name AddressType, 
+			AddressLine1, AddressLine2, City, 
+			StateProvince, PostalCode, Phone, Email
+	From Clients C
+	Inner Join ClientContacts CC
+	On C.ClientID = CC.ClientID
+	Inner Join Patients P
+	On P.ClientID = C.ClientID
+	Inner Join AnimalTypeReference ATR
+	On ATR.AnimalTypeID = P.AnimalType
+	Where Breed Like '%' + @Value + '%'
+
+
+	--Exec uspBreedReturn Mouse
+Go	
+Create Proc uspPayDate (@ClientID as Int)
+As
+	Select PaymentDate, EndTime, P.Amount 
+	From Payment P
+	Inner Join Billing B
+	On B.BillID = P.BillID
+	Inner Join Visits V
+	On B.VisitID = V.VisitID
+	Where ClientID = @ClientID
+
+	--Exec uspPayDate 5
+Go
+Create Proc uspMailList 
+As
+	Select	Concat(LastName, ',', ' ', FirstName) 'Employee',  
+			AddressLine1, AddressLine2, City, StateProvince 'State', 
+			PostalCode 'ZIP', Phone
+	From VetEmployees VE
+	Inner Join EmployeeContactInfo ECI
+	On VE.EmployeeID = ECI.EmployeeID
+
+	--Exec uspMailList 
+Go
+Create Proc uspNewClient
+(
+@FirstName as Varchar(50),
+@LastName as Varchar(50),
+@AddressType as int, 
+@AddressLine1 as Varchar(50), 
+@AddressLine2 as Varchar(50), 
+@City as Varchar(50), 
+@StateProvince as Varchar(50), 
+@PostalCode as Varchar(50), 
+@Phone as Varchar(50), 
+@Email as Varchar(50),
+@ClientID int Output
+)
+As
+ 
+	Insert Into Clients
+			(FirstName, LastName)
+
+	Values	(@FirstName, @LastName)
+
+	Insert Into ClientContacts 
+		(AddressType, AddressLine1, AddressLine2, City, StateProvince, PostalCode, Phone, Email) 
+
+	Values	(@AddressType, @AddressLine1, @AddressLine2, @City, @StateProvince, @PostalCode, @Phone, @Email)
+
+	Select @ClientID = SCOPE_IDENTITY() From Clients
+
+Go
+Create Proc uspNewEmployee
+(
+@LastName As Varchar(50), 
+@FirstName As Varchar(50), 
+@HireDate As Varchar(50), 
+@Title As Varchar(50),
+@AddressLine1 As Varchar(50), 
+@AddressLine2 As Varchar(50), 
+@City As Varchar(50), 
+@StateProvince As Varchar(50), 
+@PostalCode As Varchar(50), 
+@Phone As Varchar, 
+@EmployeeID As int, 
+@NewEmpID int Output
+)
+As 
+	Insert Into VetEmployees 
+		(LastName, FirstName, HireDate, Title)	
+
+	Values	
+		(@Lastname, @FirstName, @HireDate, @Title)
+
+
+	Insert Into EmployeeContactInfo 
+			(AddressLine1, AddressLine2, City, StateProvince, PostalCode, Phone, EmployeeID) 
+
+	Values	(@AddressLine1, @AddressLine2, @City, @StateProvince, @PostalCode, @Phone, @EmployeeID)
+	
+	Select @NewEmpID = SCOPE_IDENTITY()
+	From VetEmployees
+
 Go
 -- Users
 Create User VetManager For Login VetManager
-Go
+Go 
 
 Alter Role db_datareader Add Member [VetManager]
 Go
@@ -233,6 +425,19 @@ Go
 
 Alter Role db_datareader Add Member [VetClerk]
 Go
-
 	Deny Select On ClientContacts To VetClerk;
 	Deny Select On EmployeeContactInfo To VetClerk;
+	Grant Exec On uspSpeciesReturn To VetClerk;
+	Grant Exec On uspBreedReturn To VetClerk;
+	Grant Exec On uspPayDate To VetClerk;
+	Grant Exec On uspMailList To VetClerk;
+	Grant Exec On uspNewClient To VetClerk;
+	Grant Exec On uspNewEmployee To VetClerk;
+
+	Grant Exec On uspSpeciesReturn To VetManager;
+	Grant Exec On uspBreedReturn To VetManager;
+	Grant Exec On uspPayDate To VetManager;
+	Grant Exec On uspMailList To VetManager;
+	Grant Exec On uspNewClient To VetManager;
+	Grant Exec On uspNewEmployee To VetManager;
+
